@@ -4,12 +4,19 @@ import { basicAdvice } from '../../../lib/basicAdvice.js'
 import { setupVapid } from '../../../lib/push'
 
 export default async function handler(req,res){
-  if(req.method === 'GET'){
-    // Strava webhook validation handshake
-    const challenge = req.query['hub.challenge']
-    const token = req.query['hub.verify_token']
-    if(token !== process.env.STRAVA_WEBHOOK_VERIFY_TOKEN) return res.status(403).send('bad token')
-    return res.status(200).send(challenge)
+   if (req.method === 'GET') {
+    const mode = req.query['hub.mode'] || req.query['hub_mode'] || req.query.mode;
+    const challenge = req.query['hub.challenge'] || req.query['hub_challenge'] || req.query.challenge;
+    const token = req.query['hub.verify_token'] || req.query['hub_verify_token'] || req.query.token;
+
+    // Vérification du token (optionnelle au début, mais mieux de la garder)
+    if (process.env.STRAVA_WEBHOOK_VERIFY_TOKEN && token !== process.env.STRAVA_WEBHOOK_VERIFY_TOKEN) {
+      return res.status(403).send('bad token');
+    }
+
+    // Réponse EXACTEMENT comme Strava veut : JSON avec hub.challenge
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(200).json({ "hub.challenge": challenge });
   }
 
   // handle events
