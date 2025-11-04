@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 import { basicAdvice } from '../../../lib/basicAdvice.js'
 import { setupVapid } from '../../../lib/push'
 
-export default async function handler(req,res){
+export default function handler(req, res) {
   if (req.method === 'GET') {
     const challenge =
       req.query['hub.challenge'] ||
